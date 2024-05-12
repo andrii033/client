@@ -1,5 +1,7 @@
 package com.ta.client;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.TextInputDialog;
@@ -8,10 +10,12 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import org.springframework.http.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class HelloApplication extends Application {
     private static final int TABLE_SIZE = 10;
@@ -37,11 +41,18 @@ public class HelloApplication extends Application {
 
         TerrainData[] terrainData = userServise.choose();
 
-
         GridPane root = new GridPane();
         Scene scene = new Scene(root);
-        primaryStage.setFullScreen(true);
+        primaryStage.setFullScreen(false);
 
+        Timeline updateTerrainDataTimeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
+            TerrainData[] td = userServise.choose();
+            FightRequest fightRequest = userServise.fight();
+            System.out.println(fightRequest.getEnemyHp()+" "+ fightRequest.getEnemyId());
+            drawTable(root, td, userServise.move(9999, 9999));
+        }));
+        updateTerrainDataTimeline.setCycleCount(Timeline.INDEFINITE);
+        updateTerrainDataTimeline.play();
 
         scene.setOnMouseClicked(event -> {
             if (event.getButton() == MouseButton.PRIMARY) {
@@ -51,10 +62,8 @@ public class HelloApplication extends Application {
                 int clickedRow = (int) (mouseY / CELL_SIZE);
                 System.out.println("Clicked on square: Row " + clickedRow + ", Column " + clickedColumn);
                 Map<String, Integer> charCoords = userServise.move(clickedRow, clickedColumn);
-                //userServise.selectTarget(1);//attack to enemy
 
                 drawTable(root, terrainData, charCoords);
-
 
                 TextInputDialog textInputDialog = new TextInputDialog();
                 textInputDialog.setTitle("Text Input Dialog");
@@ -63,9 +72,17 @@ public class HelloApplication extends Application {
                         textInputDialog.setHeaderText(x.getXcoord()+" "+x.getYcoord()+" "+x.getEnemies().toString());
                     }
                 }
-                textInputDialog.show();
+                //textInputDialog.show();
+                Optional<String> result = textInputDialog.showAndWait();
+                result.ifPresent(input -> {
+                    System.out.println("User's input: " + input);
+                    userServise.selectTarget(Integer.valueOf(input));
+                });
+
             }
         });
+
+
 
         Map<String, Integer> startCoords = new HashMap<>();
         startCoords.put("x", 0);

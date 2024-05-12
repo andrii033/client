@@ -94,7 +94,7 @@ public class UserServise {
         if (protectedResourceResponse.getStatusCode() == HttpStatus.OK) {
             String responseBody = protectedResourceResponse.getBody();
 
-            System.out.println("choose response " + responseBody.toString());
+            //System.out.println("choose response " + responseBody.toString());
 
             // Parse JSON response using Jackson
             ObjectMapper objectMapper = new ObjectMapper();
@@ -127,7 +127,7 @@ public class UserServise {
                 HttpMethod.POST,
                 requestEntity,
                 String.class);
-        System.out.println("Move " + protectedResourceResponse.getBody());
+        //System.out.println("Move " + protectedResourceResponse.getBody());
         if (protectedResourceResponse.getStatusCode() == HttpStatus.OK) {
             String responseBody = protectedResourceResponse.getBody();
 
@@ -154,9 +154,7 @@ public class UserServise {
         HttpHeaders securedHeaders = new HttpHeaders();
         securedHeaders.setBearerAuth(token);
 
-        Long requestBody = 10L;
-
-        HttpEntity<Long> requestEntity = new HttpEntity<>(requestBody, securedHeaders);
+        HttpEntity<Integer> requestEntity = new HttpEntity<>(id, securedHeaders);
         ResponseEntity<String> protectedResourceResponse = restTemplate.exchange(
                 "http://localhost:8080/character/selectTarget",
                 HttpMethod.POST,
@@ -166,6 +164,39 @@ public class UserServise {
             String responseBody = protectedResourceResponse.getBody();
             System.out.println("select target " + responseBody);
         }
-
     }
+
+    public FightRequest fight() {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpHeaders securedHeaders = new HttpHeaders();
+        securedHeaders.setBearerAuth(token);
+
+        HttpEntity<?> requestEntity = new HttpEntity<>(securedHeaders);
+        ResponseEntity<String> protectedResourceResponse = restTemplate.exchange(
+                "http://localhost:8080/character/fight",
+                HttpMethod.GET,
+                requestEntity,
+                String.class);
+
+        if (protectedResourceResponse.getStatusCode() == HttpStatus.OK) {
+            String responseBody = protectedResourceResponse.getBody();
+
+            // Parse JSON response using Jackson
+            ObjectMapper objectMapper = new ObjectMapper();
+            try {
+                FightRequest fightRequest = objectMapper.readValue(responseBody, FightRequest.class);
+                return fightRequest;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            // Handle unsuccessful response
+            System.err.println("Failed to retrieve terrain data. Status code: " + protectedResourceResponse.getStatusCode());
+        }
+        return null; // Return null if something went wrong or there's no data
+    }
+
 }
