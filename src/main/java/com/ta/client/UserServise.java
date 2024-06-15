@@ -3,7 +3,6 @@ package com.ta.client;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.*;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
@@ -50,7 +49,7 @@ public class UserServise {
         return responseEntity;
     }
 
-    public ResponseEntity<String> create(ResponseEntity<Map> response) {
+    public ResponseEntity<String> createCharacter(ResponseEntity<Map> response) {
         RestTemplate restTemplate = new RestTemplate();
         Map<String, String> responseBody = response.getBody();
 
