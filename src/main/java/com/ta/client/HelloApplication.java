@@ -5,9 +5,11 @@ import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
@@ -49,8 +51,13 @@ public class HelloApplication extends Application {
     }
 
     private void setupUI(Stage primaryStage) {
+        VBox vbox = new VBox();
         root = new GridPane();
-        Scene scene = new Scene(root);
+        Button showParamsButton = new Button("Show Character Parameters");
+        showParamsButton.setOnAction(event -> showCharacterParameters());
+        vbox.getChildren().addAll(showParamsButton, root);
+
+        Scene scene = new Scene(vbox);
         primaryStage.setFullScreen(false);
 
         scene.setOnMouseClicked(event -> {
@@ -70,7 +77,7 @@ public class HelloApplication extends Application {
         Timeline updateTerrainDataTimeline = new Timeline(new KeyFrame(Duration.seconds(UPDATE_INTERVAL_SECONDS), event -> {
             TerrainData[] newTerrainData = userServise.choose();
             FightRequest fightRequest = userServise.fight();
-            System.out.println(fightRequest.getEnemyHp() + " " + fightRequest.getEnemyId());
+            System.out.println(" enemyHp " + fightRequest.getEnemyHp() + " enemyId " + fightRequest.getEnemyId());
 
             Platform.runLater(() -> drawTable(newTerrainData, userServise.move(9999, 9999)));
         }));
@@ -104,7 +111,6 @@ public class HelloApplication extends Application {
         });
     }
 
-
     private void drawTable(TerrainData[] terrainData, Map<String, Integer> charCoords) {
         root.getChildren().clear(); // Clear existing content
         // Create the table
@@ -125,6 +131,32 @@ public class HelloApplication extends Application {
             cell.setStroke(Color.BLACK);
             root.add(cell, col, row);
         }
+    }
+
+    private void showCharacterParameters() {
+        // Create a new dialog or window to display character parameters
+        Stage dialog = new Stage();
+        dialog.setTitle("Character Parameters");
+
+        VBox dialogVbox = new VBox();
+        javafx.scene.control.Button actionButton = new javafx.scene.control.Button("click");
+
+        dialogVbox.getChildren().addAll(
+                new javafx.scene.control.Label("Username: "),
+                new javafx.scene.control.Label("Email: "),
+                actionButton
+        );
+
+        // Set an action for the button
+        actionButton.setOnAction(event -> {
+            // Define the action to be taken when the button is clicked
+            System.out.println("Button in dialog clicked!");
+            // Add any specific action you want here
+        });
+
+        Scene dialogScene = new Scene(dialogVbox, 300, 200);
+        dialog.setScene(dialogScene);
+        dialog.show();
     }
 
     public static void main(String[] args) {
